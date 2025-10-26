@@ -12,17 +12,17 @@ public class Triangle {
     private static GraphicsContext gc = null;
     private static PixelWriter pw = null;
 
+    public static void drawTriangle(double x1, double y1, Color color1, double x2, double y2, Color color2,
+                                    double x3, double y3, Color color3, GraphicsContext newGraphicContext) {
 
-//    public Triangle(GraphicsContext graphicsContext) {
-//        this.gc = graphicsContext;
-//    }
-
-    public static void drawTriangle(double x1, double y1, double x2, double y2, double x3, double y3, Color color, GraphicsContext newGraphicContext) {
-//        int[] yVertices = {y1, y2, y3};
-//        Arrays.sort(yVertices);
         gc = newGraphicContext;
         pw = gc.getPixelWriter();
-        DoublePoint[] vertices = {new DoublePoint(x1, y1), new DoublePoint(x2, y2), new DoublePoint(x3, y3)};
+
+        ColorVector colorVector1 = new ColorVector(color1.getRed(), color1.getGreen(), color1.getBlue());
+        ColorVector colorVector2 = new ColorVector(color2.getRed(), color2.getGreen(), color2.getBlue());
+        ColorVector colorVector3 = new ColorVector(color3.getRed(), color3.getGreen(), color3.getBlue());
+
+        DoublePoint[] vertices = {new DoublePoint(x1, y1, colorVector1), new DoublePoint(x2, y2, colorVector2), new DoublePoint(x3, y3, colorVector3)};
 
         Arrays.sort(vertices, (p1, p2) -> Double.compare(p1.getY(), p2.getY()));
 
@@ -33,60 +33,66 @@ public class Triangle {
 
         if (Math.abs(topPoint.getY() - bottomPoint.getY()) < ERROR_CONST) return;
         if (Math.abs(middlePoint.getY() - bottomPoint.getY()) < ERROR_CONST) {
-            fillTrianglePart(topPoint, middlePoint, bottomPoint, color);
+            fillTrianglePart(topPoint, middlePoint, bottomPoint);
         } else if (Math.abs(topPoint.getY() - middlePoint.getY()) < ERROR_CONST) {
-            fillTrianglePart(middlePoint, topPoint, bottomPoint, color);
+            fillTrianglePart(bottomPoint, topPoint, middlePoint);
         } else {
+            // (y - y1)/(y2 - y1)
+            double y_difference = (middlePoint.getY() - topPoint.getY()) / (bottomPoint.getY() - topPoint.getY());
+
             DoublePoint secondMiddlePoint = new DoublePoint(topPoint.getX() +
-                    (middlePoint.getY() - topPoint.getY()) / (bottomPoint.getY() - topPoint.getY())
-                            * (bottomPoint.getX() - topPoint.getX()),
-                    middlePoint.getY());
+                    y_difference * (bottomPoint.getX() - topPoint.getX()),
+                    middlePoint.getY(),
+                    topPoint.getColorVector().add(bottomPoint.getColorVector().subtract(topPoint.getColorVector()
+                            .multiply(y_difference))));
 
-            fillTrianglePart(topPoint, middlePoint, secondMiddlePoint, color);
-            fillTrianglePart(middlePoint, secondMiddlePoint, bottomPoint, color);
+            fillTrianglePart(topPoint, middlePoint, secondMiddlePoint);
+            fillTrianglePart(bottomPoint, middlePoint, secondMiddlePoint);
         }
     }
 
-    public static void test(final GraphicsContext graphicsContext) {
-        final PixelWriter pixelWriter = graphicsContext.getPixelWriter();
-        for (int x = 0; x < 15; x++) {
-            for (int y = 0; y < 15; y++) {
-                pixelWriter.setColor(x, y, Color.BLACK);
-            }
+    private static void fillTrianglePart(DoublePoint singlePoint, DoublePoint leftPairPoint, DoublePoint rightPairPoint) {
+        if (leftPairPoint.getX() > rightPairPoint.getX()) {
+            DoublePoint temp = leftPairPoint;
+            leftPairPoint = rightPairPoint;
+            rightPairPoint = temp;
         }
-    }
+//        DoublePoint singlePoint, leftPairPoint, rightPairPoint;
 
-    private static void fillTrianglePart(DoublePoint p1, DoublePoint p2, DoublePoint p3, Color color) {
-        DoublePoint singlePoint, leftPairPoint, rightPairPoint;
+//        if (Math.abs(p1.getY() - p2.getY()) < ERROR_CONST) {
+//            if (p1.getX() < p2.getX()) {
+//                leftPairPoint = p1;
+//                rightPairPoint = p2;
+//            } else {
+//                leftPairPoint = p2;
+//                rightPairPoint = p1;
+//            }
+//            singlePoint = p3;
+//        } else if (Math.abs(p2.getY() - p3.getY()) < ERROR_CONST) {
+//            if (p2.getX() < p3.getX()) {
+//                leftPairPoint = p2;
+//                rightPairPoint = p3;
+//            } else {
+//                leftPairPoint = p3;
+//                rightPairPoint = p2;
+//            }
+//            singlePoint = p1;
+//        } else {
+//            if (p3.getX() < p1.getX()) {
+//                leftPairPoint = p3;
+//                rightPairPoint = p1;
+//            } else {
+//                leftPairPoint = p1;
+//                rightPairPoint = p3;
+//            }
+//            singlePoint = p2;
+//        }
 
-        if (Math.abs(p1.getY() - p2.getY()) < ERROR_CONST) {
-            if (p1.getX() < p2.getX()) {
-                leftPairPoint = p1;
-                rightPairPoint = p2;
-            } else {
-                leftPairPoint = p2;
-                rightPairPoint = p1;
-            }
-            singlePoint = p3;
-        } else if (Math.abs(p2.getY() - p3.getY()) < ERROR_CONST) {
-            if (p2.getX() < p3.getX()) {
-                leftPairPoint = p2;
-                rightPairPoint = p3;
-            } else {
-                leftPairPoint = p3;
-                rightPairPoint = p2;
-            }
-            singlePoint = p1;
-        } else {
-            if (p3.getX() < p1.getX()) {
-                leftPairPoint = p3;
-                rightPairPoint = p1;
-            } else {
-                leftPairPoint = p1;
-                rightPairPoint = p3;
-            }
-            singlePoint = p1;
-        }
+
+        double denominator = (leftPairPoint.getX() - singlePoint.getX()) * (rightPairPoint.getY() - singlePoint.getY())
+                - (rightPairPoint.getX() - singlePoint.getX()) * (leftPairPoint.getY() - singlePoint.getY());
+        if (Math.abs(denominator) < ERROR_CONST) return;
+        double one_over_den = 1.0 / denominator;
 
         double dy = leftPairPoint.getY() - singlePoint.getY();
         // TODO check DY
@@ -96,60 +102,38 @@ public class Triangle {
         double step_left = dx_left / dy;
         double step_right = dx_right / dy;
 
+
+        double dv_dx = (rightPairPoint.getY() - singlePoint.getY()) * one_over_den;
+        double dv_dy = (singlePoint.getX() - rightPairPoint.getX()) * one_over_den;
+        double dw_dx = (singlePoint.getY() - leftPairPoint.getY()) * one_over_den;
+        double dw_dy = (leftPairPoint.getX() - singlePoint.getX()) * one_over_den;
+
+        ColorVector dc_dv = leftPairPoint.getColorVector().subtract(singlePoint.getColorVector());
+        ColorVector dc_dw = rightPairPoint.getColorVector().subtract(singlePoint.getColorVector());
+
+        ColorVector dColor_dx = dc_dv.multiply(dv_dx).add(dc_dw.multiply(dw_dx));
+        ColorVector dColor_dy = dc_dv.multiply(dv_dy).add(dc_dw.multiply(dw_dy));
+
+        ColorVector dColor_edge_left = dColor_dx.multiply(step_left).add(dColor_dy);
         int startY = (int) Math.round(singlePoint.getY());
         int endY = (int) Math.round(leftPairPoint.getY());
 
-        double currentXLeft, currentXRight;
-        currentXLeft = currentXRight = singlePoint.getX();
+        double currentXLeft = singlePoint.getX();
+        ColorVector color_left = singlePoint.getColorVector();
 
         if (startY < endY) {
             for (int y = startY; y <= endY; y++) {
-                drawHorizontalLine((int) Math.round(currentXLeft), (int) Math.round(currentXRight), y, color);
+                drawHorizontalLine((int) Math.round(currentXLeft), (int) Math.round(currentXLeft + (y - startY) * step_right), y, color_left, dColor_dx);
                 currentXLeft += step_left;
-                currentXRight += step_right;
-            }
-        } else {
-            for (int y = startY; y >= endY; y--) {
-                drawHorizontalLine((int) Math.round(currentXLeft), (int) Math.round(currentXRight), y, color);
-                currentXLeft -= step_left;
-                currentXRight -= step_right;
+                color_left = color_left.add(dColor_edge_left);
             }
         }
-
-
     }
 
-    private static void drawHorizontalLine(int leftX, int rightX, int y, Color color) {
+    private static void drawHorizontalLine(int leftX, int rightX, int y, ColorVector startColor, ColorVector dColor_dx) {
         for (int x = leftX; x <= rightX; x++) {
-            pw.setColor(x, y, color);
-        }
-    }
-
-    // TODO: replace
-    public static void drawLineDDA(final GraphicsContext graphicsContext, int x1, int y1, int x2, int y2) {
-
-        final PixelWriter pixelWriter = graphicsContext.getPixelWriter();
-        float deltaX = x2 - x1;
-        float deltaY = y2 - y1;
-
-        int i = 0;
-        float step;
-
-        if (Math.abs(deltaX) >= Math.abs(deltaY)) {
-            step = Math.abs(deltaX);
-        } else {
-            step = Math.abs(deltaY);
-        }
-        deltaX = deltaX / step;
-        deltaY = deltaY / step;
-        float x = x1;
-        float y = y1;
-
-        while (i <= step) {
-            pixelWriter.setColor(Math.round(x), Math.round(y), Color.BLACK);
-            x += deltaX;
-            y += deltaY;
-            i += 1;
+            pw.setColor(x, y, startColor.toFxColor());
+            startColor = startColor.add(dColor_dx);
         }
     }
 
