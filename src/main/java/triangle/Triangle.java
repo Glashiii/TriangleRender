@@ -111,7 +111,6 @@ public class Triangle {
     private static void drawHorizontalLine(int leftX, int rightX, int y, ColorVector startColor, ColorVector dColor_dx) {
         if (leftX > rightX) {
             int temp = leftX; leftX = rightX; rightX = temp;
-            // Коррекция цвета для правильного начала
             startColor = startColor.add(dColor_dx.multiply(leftX - rightX));
         }
         for (int x = leftX; x <= rightX; x++) {
