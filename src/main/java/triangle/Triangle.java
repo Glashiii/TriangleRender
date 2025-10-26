@@ -43,8 +43,8 @@ public class Triangle {
             DoublePoint secondMiddlePoint = new DoublePoint(topPoint.getX() +
                     y_difference * (bottomPoint.getX() - topPoint.getX()),
                     middlePoint.getY(),
-                    topPoint.getColorVector().add(bottomPoint.getColorVector().subtract(topPoint.getColorVector()
-                            .multiply(y_difference))));
+                    topPoint.getColorVector()
+                            .add(bottomPoint.getColorVector().subtract(topPoint.getColorVector()).multiply(y_difference)));
 
             fillTrianglePart(topPoint, middlePoint, secondMiddlePoint);
             fillTrianglePart(bottomPoint, middlePoint, secondMiddlePoint);
@@ -57,37 +57,6 @@ public class Triangle {
             leftPairPoint = rightPairPoint;
             rightPairPoint = temp;
         }
-//        DoublePoint singlePoint, leftPairPoint, rightPairPoint;
-
-//        if (Math.abs(p1.getY() - p2.getY()) < ERROR_CONST) {
-//            if (p1.getX() < p2.getX()) {
-//                leftPairPoint = p1;
-//                rightPairPoint = p2;
-//            } else {
-//                leftPairPoint = p2;
-//                rightPairPoint = p1;
-//            }
-//            singlePoint = p3;
-//        } else if (Math.abs(p2.getY() - p3.getY()) < ERROR_CONST) {
-//            if (p2.getX() < p3.getX()) {
-//                leftPairPoint = p2;
-//                rightPairPoint = p3;
-//            } else {
-//                leftPairPoint = p3;
-//                rightPairPoint = p2;
-//            }
-//            singlePoint = p1;
-//        } else {
-//            if (p3.getX() < p1.getX()) {
-//                leftPairPoint = p3;
-//                rightPairPoint = p1;
-//            } else {
-//                leftPairPoint = p1;
-//                rightPairPoint = p3;
-//            }
-//            singlePoint = p2;
-//        }
-
 
         double denominator = (leftPairPoint.getX() - singlePoint.getX()) * (rightPairPoint.getY() - singlePoint.getY())
                 - (rightPairPoint.getX() - singlePoint.getX()) * (leftPairPoint.getY() - singlePoint.getY());
@@ -95,7 +64,6 @@ public class Triangle {
         double one_over_den = 1.0 / denominator;
 
         double dy = leftPairPoint.getY() - singlePoint.getY();
-        // TODO check DY
         double dx_left = leftPairPoint.getX() - singlePoint.getX();
         double dx_right = rightPairPoint.getX() - singlePoint.getX();
 
@@ -121,16 +89,31 @@ public class Triangle {
         double currentXLeft = singlePoint.getX();
         ColorVector color_left = singlePoint.getColorVector();
 
+        double currentXRight = singlePoint.getX();
+
         if (startY < endY) {
             for (int y = startY; y <= endY; y++) {
-                drawHorizontalLine((int) Math.round(currentXLeft), (int) Math.round(currentXLeft + (y - startY) * step_right), y, color_left, dColor_dx);
+                drawHorizontalLine((int) Math.round(currentXLeft), (int) Math.round(currentXRight), y, color_left, dColor_dx);
                 currentXLeft += step_left;
+                currentXRight += step_right;
                 color_left = color_left.add(dColor_edge_left);
+            }
+        } else {
+            for (int y = startY; y > endY; y--) {
+                drawHorizontalLine((int)Math.round(currentXLeft), (int)Math.round(currentXRight), y, color_left, dColor_dx);
+                currentXLeft -= step_left;
+                currentXRight -= step_right;
+                color_left = color_left.subtract(dColor_edge_left);
             }
         }
     }
 
     private static void drawHorizontalLine(int leftX, int rightX, int y, ColorVector startColor, ColorVector dColor_dx) {
+        if (leftX > rightX) {
+            int temp = leftX; leftX = rightX; rightX = temp;
+            // Коррекция цвета для правильного начала
+            startColor = startColor.add(dColor_dx.multiply(leftX - rightX));
+        }
         for (int x = leftX; x <= rightX; x++) {
             pw.setColor(x, y, startColor.toFxColor());
             startColor = startColor.add(dColor_dx);
