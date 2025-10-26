@@ -21,8 +21,9 @@ public class RasterizationController {
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
-        Triangle.test(canvas.getGraphicsContext2D());
+//        Triangle.test(canvas.getGraphicsContext2D());
         Triangle.drawLineDDA(canvas.getGraphicsContext2D(), 5, 5, 108, 90);
+        Triangle.drawTriangle(1,1,1,150, 100, 150, Color.BLACK, canvas.getGraphicsContext2D());
 //        Rasterization.drawRectangle(canvas.getGraphicsContext2D(), 200, 300, 200, 100, Color.CHOCOLATE);
 //        Rasterization.drawRectangle(canvas.getGraphicsContext2D(), 250, 250, 50, 200, Color.AQUA);
     }
