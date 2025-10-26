@@ -57,11 +57,11 @@ public class Triangle {
             leftPairPoint = rightPairPoint;
             rightPairPoint = temp;
         }
-
+        // square of parallelogram (2 triangles)
         double denominator = (leftPairPoint.getX() - singlePoint.getX()) * (rightPairPoint.getY() - singlePoint.getY())
                 - (rightPairPoint.getX() - singlePoint.getX()) * (leftPairPoint.getY() - singlePoint.getY());
         if (Math.abs(denominator) < ERROR_CONST) return;
-        double one_over_den = 1.0 / denominator;
+
 
         double dy = leftPairPoint.getY() - singlePoint.getY();
         double dx_left = leftPairPoint.getX() - singlePoint.getX();
@@ -70,12 +70,14 @@ public class Triangle {
         double step_left = dx_left / dy;
         double step_right = dx_right / dy;
 
+        // cool article https://github.com/ssloy/tinyrenderer/wiki/Lesson-2:-Triangle-rasterization-and-back-face-culling
+        // and another one https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage.html
+        double dv_dx = (rightPairPoint.getY() - singlePoint.getY()) / denominator;
+        double dv_dy = (singlePoint.getX() - rightPairPoint.getX()) / denominator;
+        double dw_dx = (singlePoint.getY() - leftPairPoint.getY()) / denominator;
+        double dw_dy = (leftPairPoint.getX() - singlePoint.getX()) / denominator;
 
-        double dv_dx = (rightPairPoint.getY() - singlePoint.getY()) * one_over_den;
-        double dv_dy = (singlePoint.getX() - rightPairPoint.getX()) * one_over_den;
-        double dw_dx = (singlePoint.getY() - leftPairPoint.getY()) * one_over_den;
-        double dw_dy = (leftPairPoint.getX() - singlePoint.getX()) * one_over_den;
-
+        //shows which way color changes from leftPairPoint to singlePoint
         ColorVector dc_dv = leftPairPoint.getColorVector().subtract(singlePoint.getColorVector());
         ColorVector dc_dw = rightPairPoint.getColorVector().subtract(singlePoint.getColorVector());
 
