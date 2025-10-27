@@ -63,12 +63,14 @@ public class Triangle {
         if (Math.abs(denominator) < ERROR_CONST) return;
 
 
+
         double dy = leftPairPoint.getY() - singlePoint.getY();
+
         double dx_left = leftPairPoint.getX() - singlePoint.getX();
-        double dx_right = rightPairPoint.getX() - singlePoint.getX();
+//        double dx_right = rightPairPoint.getX() - singlePoint.getX();
 
         double step_left = dx_left / dy;
-        double step_right = dx_right / dy;
+//        double step_right = dx_right / dy;
 
         // cool article https://github.com/ssloy/tinyrenderer/wiki/Lesson-2:-Triangle-rasterization-and-back-face-culling
         // and another one https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage.html
@@ -85,8 +87,11 @@ public class Triangle {
         ColorVector dColor_dy = dc_dv.multiply(dv_dy).add(dc_dw.multiply(dw_dy));
 
         ColorVector dColor_edge_left = dColor_dx.multiply(step_left).add(dColor_dy);
-        int startY = (int) Math.round(singlePoint.getY());
-        int endY = (int) Math.round(leftPairPoint.getY());
+//        int startY = (int) Math.round(singlePoint.getY());
+//        int endY = (int) Math.round(leftPairPoint.getY());
+        int startY = (int) Math.ceil(singlePoint.getY());
+        int endY = (int) Math.ceil(leftPairPoint.getY());
+//        double yPrestep = (startY + 0.5) - singlePoint.getY();
 
         double currentXLeft = singlePoint.getX();
         ColorVector color_left = singlePoint.getColorVector();
@@ -95,16 +100,18 @@ public class Triangle {
 
         if (startY < endY) {
             for (int y = startY; y <= endY; y++) {
-                drawHorizontalLine((int) Math.round(currentXLeft), (int) Math.round(currentXRight), y, color_left, dColor_dx);
+                currentXRight = getXOnLine(singlePoint, rightPairPoint, y);
+                drawHorizontalLine((int) Math.round(currentXLeft), (int) Math.ceil(currentXRight-1), y, color_left, dColor_dx);
                 currentXLeft += step_left;
-                currentXRight += step_right;
+//                currentXRight = currentXLeft + (y - singlePoint.getY());
                 color_left = color_left.add(dColor_edge_left);
             }
         } else {
-            for (int y = startY; y > endY; y--) {
-                drawHorizontalLine((int)Math.round(currentXLeft), (int)Math.round(currentXRight), y, color_left, dColor_dx);
+            for (int y = startY; y >= endY; y--) {
+                currentXRight = getXOnLine(singlePoint, rightPairPoint, y);
+                drawHorizontalLine((int)Math.round(currentXLeft), (int)Math.ceil(currentXRight-1), y, color_left, dColor_dx);
                 currentXLeft -= step_left;
-                currentXRight -= step_right;
+//                currentXRight -= step_right;
                 color_left = color_left.subtract(dColor_edge_left);
             }
         }
@@ -115,10 +122,18 @@ public class Triangle {
             int temp = leftX; leftX = rightX; rightX = temp;
             startColor = startColor.add(dColor_dx.multiply(leftX - rightX));
         }
-        for (int x = leftX; x <= rightX; x++) {
+        for (int x = leftX; x < rightX; x++) {
             pw.setColor(x, y, startColor.toFxColor());
             startColor = startColor.add(dColor_dx);
         }
+        System.out.println("line drawn");
+    }
+    private static double getXOnLine(DoublePoint point1, DoublePoint point2, double y) {
+        double dx = point2.getX() - point1.getX();
+        double dy = point2.getY() - point1.getY();
+
+        if (Math.abs(dy) < ERROR_CONST) return point1.getX();
+        return point1.getX() + (y - point1.getY()) * dx / dy;
     }
 
 }

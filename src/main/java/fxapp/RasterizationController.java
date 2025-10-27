@@ -58,6 +58,13 @@ public class RasterizationController {
                 210, 350, Color.BLUE,
                 x, y, new Color(0, 1, 0, 0),
                 canvas.getGraphicsContext2D());
+
+        System.out.println("x: " + x + ", y: " + y);
+
+//        Triangle.drawTriangle(200, 210, Color.RED,
+//                210, 350, Color.BLUE,
+//                398.4, 211.6, new Color(0, 1, 0, 0),
+//                canvas.getGraphicsContext2D());
     }
 
 }
