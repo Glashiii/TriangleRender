@@ -33,9 +33,9 @@ public class Triangle {
 
         if (Math.abs(topPoint.getY() - bottomPoint.getY()) < ERROR_CONST) return;
         if (Math.abs(middlePoint.getY() - bottomPoint.getY()) < ERROR_CONST) {
-            fillTrianglePart(topPoint, middlePoint, bottomPoint);
+            fillTrianglePart(topPoint, middlePoint, bottomPoint, false);
         } else if (Math.abs(topPoint.getY() - middlePoint.getY()) < ERROR_CONST) {
-            fillTrianglePart(bottomPoint, topPoint, middlePoint);
+            fillTrianglePart(bottomPoint, topPoint, middlePoint, false);
         } else {
             // (y - y1)/(y2 - y1)
             double y_difference = (middlePoint.getY() - topPoint.getY()) / (bottomPoint.getY() - topPoint.getY());
@@ -45,13 +45,13 @@ public class Triangle {
                     middlePoint.getY(),
                     topPoint.getColorVector()
                             .add(bottomPoint.getColorVector().subtract(topPoint.getColorVector()).multiply(y_difference)));
+            fillTrianglePart(bottomPoint, middlePoint, secondMiddlePoint, false);
+            fillTrianglePart(topPoint, middlePoint, secondMiddlePoint, true);
 
-            fillTrianglePart(topPoint, middlePoint, secondMiddlePoint);
-            fillTrianglePart(bottomPoint, middlePoint, secondMiddlePoint);
         }
     }
 
-    private static void fillTrianglePart(DoublePoint singlePoint, DoublePoint leftPairPoint, DoublePoint rightPairPoint) {
+    private static void fillTrianglePart(DoublePoint singlePoint, DoublePoint leftPairPoint, DoublePoint rightPairPoint, boolean isSecondPart) {
         if (leftPairPoint.getX() > rightPairPoint.getX()) {
             DoublePoint temp = leftPairPoint;
             leftPairPoint = rightPairPoint;
@@ -68,6 +68,8 @@ public class Triangle {
 
         double dx_left = leftPairPoint.getX() - singlePoint.getX();
 //        double dx_right = rightPairPoint.getX() - singlePoint.getX();
+
+
 
         double step_left = dx_left / dy;
 //        double step_right = dx_right / dy;
@@ -93,10 +95,14 @@ public class Triangle {
         int endY = (int) Math.ceil(leftPairPoint.getY());
 //        double yPrestep = (startY + 0.5) - singlePoint.getY();
 
+
         double currentXLeft = singlePoint.getX();
         ColorVector color_left = singlePoint.getColorVector();
 
         double currentXRight = singlePoint.getX();
+        // that should fix artefacts with 2 parts triangle when upper part dy is very small
+        if (isSecondPart) endY -= 1;
+
 
         if (startY < endY) {
             for (int y = startY; y <= endY; y++) {
