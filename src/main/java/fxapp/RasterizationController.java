@@ -47,29 +47,29 @@ public class RasterizationController {
 
         PixelWriter pixelWriter = canvas.getGraphicsContext2D().getPixelWriter();
 
-//        for (int y = 0; y < height; y++) {
-//            for (int x = 0; x < width; x++) {
-//                pixelWriter.setColor(x, y, Color.WHITE);
-//            }
-//        }
-//
-//
-//        Triangle.drawTriangle(200, 210, Color.RED,
-//                210, 350, Color.BLUE,
-//                x, y, new Color(0, 1, 0, 0),
-//                canvas.getGraphicsContext2D());
-//
-//        System.out.println("x: " + x + ", y: " + y);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                pixelWriter.setColor(x, y, Color.WHITE);
+            }
+        }
+
 
         Triangle.drawTriangle(200, 210, Color.RED,
                 210, 350, Color.BLUE,
-                398.4, 211.6, new Color(0, 1, 0, 0),
+                x, y, new Color(0, 1, 0, 0),
                 canvas.getGraphicsContext2D());
-        // TODO check line between 2 triangles
-        Triangle.drawTriangle(520, 410, Color.RED,
-                210, 350, Color.BLUE,
-                398.4, 211.6, new Color(0, 1, 0, 0),
-                canvas.getGraphicsContext2D());
+
+        System.out.println("x: " + x + ", y: " + y);
+
+//        Triangle.drawTriangle(200, 210, Color.RED,
+//                210, 350, Color.BLUE,
+//                534.4, 206.8, new Color(0, 1, 0, 0),
+//                canvas.getGraphicsContext2D());
+//        // TODO check line between 2 triangles
+//        Triangle.drawTriangle(520, 410, Color.RED,
+//                210, 350, Color.BLUE,
+//                534.4, 206.8, new Color(0, 1, 0, 0),
+//                canvas.getGraphicsContext2D());
     }
 
 
