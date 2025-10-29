@@ -1,23 +1,23 @@
 package triangle;
 
-public class DoublePoint implements Point<Double> {
-    private Double x;
-    private Double y;
+public class FloatPoint implements Point<Float> {
+    private Float x;
+    private Float y;
     private ColorVector colorVector;
 
-    public DoublePoint(Double x, Double y, ColorVector colorVector) {
+    public FloatPoint(Float x, Float y, ColorVector colorVector) {
         this.x = x;
         this.y = y;
         this.colorVector = colorVector;
     }
 
     @Override
-    public Double getX() {
+    public Float getX() {
         return x;
     }
 
     @Override
-    public Double getY() {
+    public Float getY() {
         return y;
     }
 
@@ -29,11 +29,11 @@ public class DoublePoint implements Point<Double> {
         this.colorVector = colorVector;
     }
 
-    public void setX(Double x) {
+    public void setX(Float x) {
         this.x = x;
     }
 
-    public void setY(Double y) {
+    public void setY(Float y) {
         this.y = y;
     }
 }

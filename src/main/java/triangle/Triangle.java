@@ -5,23 +5,22 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class Triangle {
-    private static final Double ERROR_CONST = 1e-6;
+    private static final Float ERROR_CONST = 1e-6f;
     private static PixelWriter pw = null;
 
-    public static void drawTriangle(double x1, double y1, Color color1, double x2, double y2, Color color2,
-                                    double x3, double y3, Color color3, GraphicsContext newGraphicContext) {
+    public static void drawTriangle(float x1, float y1, Color color1, float x2, float y2, Color color2,
+                                    float x3, float y3, Color color3, GraphicsContext newGraphicContext) {
         pw = newGraphicContext.getPixelWriter();
 
         ColorVector colorVector1 = new ColorVector(color1.getRed(), color1.getGreen(), color1.getBlue());
         ColorVector colorVector2 = new ColorVector(color2.getRed(), color2.getGreen(), color2.getBlue());
         ColorVector colorVector3 = new ColorVector(color3.getRed(), color3.getGreen(), color3.getBlue());
 
-        DoublePoint[] vertices = {new DoublePoint(x1, y1, colorVector1), new DoublePoint(x2, y2, colorVector2), new DoublePoint(x3, y3, colorVector3)};
+        FloatPoint[] vertices = {new FloatPoint(x1, y1, colorVector1), new FloatPoint(x2, y2, colorVector2), new FloatPoint(x3, y3, colorVector3)};
 
-        Arrays.sort(vertices, (p1, p2) -> Double.compare(p1.getY(), p2.getY()));
+        Arrays.sort(vertices, (p1, p2) -> Float.compare(p1.getY(), p2.getY()));
 
         var topPoint = vertices[0];
         var middlePoint = vertices[1];
@@ -34,9 +33,9 @@ public class Triangle {
             fillTrianglePart(bottomPoint, topPoint, middlePoint);
         } else {
             // (y - y1)/(y2 - y1)
-            double y_difference = (middlePoint.getY() - topPoint.getY()) / (bottomPoint.getY() - topPoint.getY());
+            float y_difference = (middlePoint.getY() - topPoint.getY()) / (bottomPoint.getY() - topPoint.getY());
 
-            DoublePoint secondMiddlePoint = new DoublePoint(topPoint.getX() +
+            FloatPoint secondMiddlePoint = new FloatPoint(topPoint.getX() +
                     y_difference * (bottomPoint.getX() - topPoint.getX()),
                     middlePoint.getY(),
                     topPoint.getColorVector()
@@ -46,28 +45,28 @@ public class Triangle {
         }
     }
 
-    private static void fillTrianglePart(DoublePoint singlePoint, DoublePoint leftPairPoint, DoublePoint rightPairPoint) {
+    private static void fillTrianglePart(FloatPoint singlePoint, FloatPoint leftPairPoint, FloatPoint rightPairPoint) {
         if (leftPairPoint.getX() > rightPairPoint.getX()) {
-            DoublePoint temp = leftPairPoint;
+            FloatPoint temp = leftPairPoint;
             leftPairPoint = rightPairPoint;
             rightPairPoint = temp;
         }
         // square of parallelogram (2 triangles)
-        double denominator = (leftPairPoint.getX() - singlePoint.getX()) * (rightPairPoint.getY() - singlePoint.getY())
+        float denominator = (leftPairPoint.getX() - singlePoint.getX()) * (rightPairPoint.getY() - singlePoint.getY())
                 - (rightPairPoint.getX() - singlePoint.getX()) * (leftPairPoint.getY() - singlePoint.getY());
 
         if (Math.abs(denominator) < ERROR_CONST) return;
 
-        double dy = leftPairPoint.getY() - singlePoint.getY();
-        double dxLeft = leftPairPoint.getX() - singlePoint.getX();
-        double stepLeft = dxLeft / dy;
+        float dy = leftPairPoint.getY() - singlePoint.getY();
+        float dxLeft = leftPairPoint.getX() - singlePoint.getX();
+        float stepLeft = dxLeft / dy;
 
         // cool article https://github.com/ssloy/tinyrenderer/wiki/Lesson-2:-Triangle-rasterization-and-back-face-culling
         // and another one https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage.html
-        double dvDx = (rightPairPoint.getY() - singlePoint.getY()) / denominator;
-        double dvDy = (singlePoint.getX() - rightPairPoint.getX()) / denominator;
-        double dwDx = (singlePoint.getY() - leftPairPoint.getY()) / denominator;
-        double dwDy = (leftPairPoint.getX() - singlePoint.getX()) / denominator;
+        float dvDx = (rightPairPoint.getY() - singlePoint.getY()) / denominator;
+        float dvDy = (singlePoint.getX() - rightPairPoint.getX()) / denominator;
+        float dwDx = (singlePoint.getY() - leftPairPoint.getY()) / denominator;
+        float dwDy = (leftPairPoint.getX() - singlePoint.getX()) / denominator;
 
         //shows which way color changes from leftPairPoint to singlePoint
         ColorVector dcDv = leftPairPoint.getColorVector().subtract(singlePoint.getColorVector());
@@ -86,19 +85,19 @@ public class Triangle {
             endY   = (int) Math.ceil(leftPairPoint.getY() - 0.5) - 1;
         }
 
-        double yCenter = startY + 0.5;
-        double yPrestep = yCenter - singlePoint.getY();
-        double currentXLeft = singlePoint.getX() + stepLeft * yPrestep;
-        double currentXRight;
+        float yCenter = startY + 0.5f;
+        float yPrestep = yCenter - singlePoint.getY();
+        float currentXLeft = singlePoint.getX() + stepLeft * yPrestep;
+        float currentXRight;
         ColorVector colorLeft = singlePoint.getColorVector().add(dColorEdgeLeft.multiply(yPrestep));
 
         for (int y = startY; y <= endY; y++) {
-            double yc = y + 0.5;
+            float yc = y + 0.5f;
 
             currentXRight = getXOnLine(singlePoint, rightPairPoint, yc);
 
-            int xL = (int) Math.ceil(currentXLeft - 0.5);
-            int xR = (int) Math.ceil(currentXRight - 0.5);
+            int xL = (int) Math.ceil(currentXLeft - 0.5f);
+            int xR = (int) Math.ceil(currentXRight - 0.5f);
 
             if (xL < xR) {
                 ColorVector startColor = colorLeft.add(dColorDx.multiply((xL + 0.5) - currentXLeft));
@@ -116,9 +115,9 @@ public class Triangle {
             startColor = startColor.add(dColor_dx);
         }
     }
-    private static double getXOnLine(DoublePoint point1, DoublePoint point2, double y) {
-        double dx = point2.getX() - point1.getX();
-        double dy = point2.getY() - point1.getY();
+    private static float getXOnLine(FloatPoint point1, FloatPoint point2, float y) {
+        float dx = point2.getX() - point1.getX();
+        float dy = point2.getY() - point1.getY();
 
         if (Math.abs(dy) < ERROR_CONST) return point1.getX();
         return point1.getX() + (y - point1.getY()) * dx / dy;
