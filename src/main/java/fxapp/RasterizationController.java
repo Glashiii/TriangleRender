@@ -16,7 +16,7 @@ public class RasterizationController {
     @FXML
     private Canvas canvas;
 
-    private double x, y;
+    private float x, y;
 
 
     @FXML
@@ -27,8 +27,8 @@ public class RasterizationController {
         canvas.widthProperty().bind(anchorPane.widthProperty());
         canvas.heightProperty().bind(anchorPane.heightProperty());
         canvas.setOnMouseMoved(event -> {
-            x = event.getX();
-            y = event.getY();
+            x = (float) event.getX();
+            y = (float) event.getY();
 
             redrawScene();
         });
